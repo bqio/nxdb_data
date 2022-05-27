@@ -4,6 +4,7 @@ function compareDateDesc(a, b) {
   return new Date(b.date).getTime() - new Date(a.date).getTime();
 }
 
+const titleReg = /\[Nintendo Switch\]\s?(.*?)\s?\n?\[/g;
 const uidReg = /\[(0.*?)\]\[v.+\]/gm;
 
 let titles = JSON.parse(
@@ -18,9 +19,16 @@ for (const title of titles) {
     isFounded = true;
   }
 
+  while ((result = titleReg.exec(title.title)) !== null) {
+    title.title = result[1];
+  }
+
   if (!isFounded) {
     title.uid = -1;
   }
+
+  delete title.content;
+  delete title.files;
 }
 
 titles = titles
@@ -32,6 +40,6 @@ titles = titles
   })
   .sort(compareDateDesc);
 
-fs.writeFileSync("nxdb.json", JSON.stringify(titles, false, " "), {
+fs.writeFileSync("nxdb.json", JSON.stringify(titles), {
   encoding: "utf8",
 });
